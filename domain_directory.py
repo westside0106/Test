@@ -18,6 +18,7 @@ from typing import List
 # Optional: tiny XLSX reader using only the standard library
 import zipfile
 import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as DefusedET
 
 DATA_FILE = "domains.json"
 
@@ -81,7 +82,7 @@ def read_xlsx(file_path: str) -> List[str]:
         shared = []
         if 'xl/sharedStrings.xml' in z.namelist():
             with z.open('xl/sharedStrings.xml') as f:
-                tree = ET.parse(f)
+                tree = DefusedET.parse(f)
                 root = tree.getroot()
                 for si in root.findall('.//{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t'):
                     shared.append(si.text or '')
@@ -90,7 +91,7 @@ def read_xlsx(file_path: str) -> List[str]:
         if sheet_name not in z.namelist():
             return domains
         with z.open(sheet_name) as f:
-            tree = ET.parse(f)
+            tree = DefusedET.parse(f)
             root = tree.getroot()
             for row in root.findall('.//{http://schemas.openxmlformats.org/spreadsheetml/2006/main}row'):
                 cells = row.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c')
